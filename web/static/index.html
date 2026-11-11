@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NautilusTrader | BTC ATM Short Straddle Risk Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="logo-icon">
+        <span class="pulsing-core"></span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">NAUTILUS<span class="accent-text">TRADER</span></span>
+        <span class="brand-sub">BTC ATM STRADDLE ENGINE // BYBIT TESTNET</span>
+      </div>
+    </div>
+
+    <div class="nav-metrics">
+      <div class="metric-chip">
+        <span class="chip-label">UNDERLYING BTC/USDT</span>
+        <span class="chip-value" id="nav-btc-price">$---,---.--</span>
+      </div>
+      <div class="status-badge connecting" id="connection-badge">
+        <span class="status-dot"></span>
+        <span id="connection-text">CONNECTING TESTNET</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="dashboard-grid">
+    <!-- Row 1: Key Performance & Risk Indicators -->
+    <section class="metrics-row">
+      <!-- Card 1: ATM Strike & Contract Info -->
+      <div class="metric-card">
+        <div class="card-header">
+          <span class="card-label">ATM STRIKE & EXPIRY</span>
+          <span class="tag-pill tag-neutral" id="tag-contract-status">DISCOVERING</span>
+        </div>
+        <div class="card-body">
+          <div class="hero-metric" id="metric-atm-strike">---</div>
+          <div class="metric-detail" id="metric-expiry">Expiry: Resolving...</div>
+        </div>
+        <div class="card-footer">
+          <span class="footer-note">Front-expiry ATM Selection</span>
+          <span class="footer-badge" id="trade-size-badge">Size: 0.01 BTC</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Combined Straddle Premium Valuation -->
+      <div class="metric-card">
+        <div class="card-header">
+          <span class="card-label">COMBINED STRADDLE PREMIUM</span>
+          <span class="tag-pill tag-info">BUYBACK COST</span>
+        </div>
+        <div class="card-body">
+          <div class="hero-metric" id="metric-current-combined">$---.--</div>
+          <div class="metric-detail">
+            Entry Premium: <span id="metric-entry-combined" class="bold">$---.--</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="footer-note">Valuation: Live Call Ask + Put Ask</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Live Premium Drift (Delta %) -->
+      <div class="metric-card" id="card-drift">
+        <div class="card-header">
+          <span class="card-label">PREMIUM DRIFT (Δ%)</span>
+          <span class="tag-pill" id="tag-drift-state">MONITORING</span>
+        </div>
+        <div class="card-body">
+          <div class="hero-metric" id="metric-drift-pct">0.00%</div>
+          <div class="metric-detail">
+            Total Unrealized PnL: <span id="metric-total-pnl" class="bold">$0.00</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="footer-note">Thresholds: +1.00% SL | -2.00% TP</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Automated Risk Gauges -->
+      <div class="metric-card risk-card">
+        <div class="card-header">
+          <span class="card-label">LEVEL 2 RISK GAUGES</span>
+          <span class="tag-pill tag-warning" id="tag-risk-status">ARMED</span>
+        </div>
+        <div class="risk-bars-container">
+          <!-- Stop Loss Progress -->
+          <div class="risk-bar-group">
+            <div class="risk-bar-label">
+              <span class="sl-label">STOP-LOSS (+1.00%)</span>
+              <span class="bps-text" id="sl-bps-dist">--- bps away</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill sl-fill" id="sl-progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Take Profit Progress -->
+          <div class="risk-bar-group">
+            <div class="risk-bar-label">
+              <span class="tp-label">TAKE-PROFIT (-2.00%)</span>
+              <span class="bps-text" id="tp-bps-dist">--- bps away</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill tp-fill" id="tp-progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Row 2: Active Straddle Legs Dual Position Table -->
+    <section class="positions-section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          ACTIVE STRADDLE LEGS
+        </div>
+        <div class="controls-group">
+          <button class="btn btn-danger" id="btn-manual-exit" title="Immediately buy back and close both positions">
+            EMERGENCY FLATTEN ALL
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="positions-table">
+          <thead>
+            <tr>
+              <th>LEG</th>
+              <th>INSTRUMENT ID</th>
+              <th>SIDE</th>
+              <th>QTY</th>
+              <th>ENTRY PRICE</th>
+              <th>CURRENT ASK</th>
+              <th>UNREALIZED PNL</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Call Leg -->
+            <tr id="row-call-leg">
+              <td><span class="leg-pill call-leg">CALL LEG</span></td>
+              <td class="font-mono" id="call-inst-id">Awaiting contract discovery...</td>
+              <td><span class="side-pill short-side">SHORT</span></td>
+              <td class="font-mono" id="call-qty">0.01</td>
+              <td class="font-mono" id="call-entry-px">$0.00</td>
+              <td class="font-mono" id="call-ask-px">$0.00</td>
+              <td class="font-mono" id="call-pnl">$0.00</td>
+              <td><span class="status-tag" id="call-status">PENDING</span></td>
+            </tr>
+            <!-- Put Leg -->
+            <tr id="row-put-leg">
+              <td><span class="leg-pill put-leg">PUT LEG</span></td>
+              <td class="font-mono" id="put-inst-id">Awaiting contract discovery...</td>
+              <td><span class="side-pill short-side">SHORT</span></td>
+              <td class="font-mono" id="put-qty">0.01</td>
+              <td class="font-mono" id="put-entry-px">$0.00</td>
+              <td class="font-mono" id="put-ask-px">$0.00</td>
+              <td class="font-mono" id="put-pnl">$0.00</td>
+              <td><span class="status-tag" id="put-status">PENDING</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Row 3: Live Order Execution Audit Log & Engine Terminal -->
+    <section class="console-section">
+      <div class="section-header">
+        <div class="section-title font-mono">
+          <span class="terminal-prompt">&gt;</span> LIVE OMS AUDIT CONSOLE &amp; RISK FEED
+        </div>
+        <div class="console-tools">
+          <span class="feed-indicator"></span>
+          <span class="tool-label">STREAMING EVENTS</span>
+          <button class="btn btn-secondary btn-sm" id="btn-clear-log">CLEAR</button>
+        </div>
+      </div>
+      <div class="console-window" id="console-feed">
+        <div class="log-line info">
+          <span class="log-ts">[00:00:00]</span>
+          <span class="log-msg">SYSTEM: Initializing NautilusTrader Web Dashboard listener...</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-col">
+      NautilusTrader 1.221.0 | Bybit Testnet Option Straddle
+    </div>
+    <div class="footer-col">
+      State Machine: <span id="footer-state-machine" class="font-mono text-emerald">READY</span>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
